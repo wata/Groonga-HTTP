@@ -12,11 +12,12 @@ sub new {
     my %args  = @_;
 
     my $self  = {
+        ua   => Furl::HTTP->new,
         host => $args{host} || 'localhost',
         port => $args{port} || 10041,
     };
 
-    bless { useragent => Furl::HTTP->new, %$self }, $class;
+    return bless $self, $class;
 }
 
 sub call {
@@ -33,12 +34,11 @@ sub call {
     $uri->host($self->{host});
     $uri->port($self->{port});
     $uri->query_form(%$args_ref);
-    my ( undef, $code, undef, undef, $body ) = $self->{useragent}->get($uri);
+    my ( undef, $code, undef, undef, $body ) = $self->{ua}->get($uri);
 
     if ( $code eq 200 ) {
         print $body, "\n";
-        my $result = Groonga::HTTP::Result->new( data => decode_json($body) );
-        return $result;
+        return Groonga::HTTP::Result->new( data => decode_json($body) );
     }
     else {
         die $code;
@@ -55,6 +55,14 @@ Groonga::HTTP -
 =head1 SYNOPSIS
 
   use Groonga::HTTP;
+  my $groonga = Groonga::HTTP->new;
+  my $load_data = [
+      { _key => "http://example.org/", title => "This is test record 1!" },
+      { _key => "http://example.net/", title => "test record 2." },
+      ...
+  ];
+  $groonga->call( load => { table => 'Site', values => $load_data } );
+  # [[0,1308820931.65233,2.210007023],9]
 
 =head1 DESCRIPTION
 
