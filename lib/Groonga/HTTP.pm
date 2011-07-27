@@ -38,7 +38,10 @@ sub call {
 
     if ( $code eq 200 ) {
         print $body, "\n";
-        return Groonga::HTTP::Result->new( data => decode_json($body) );
+        return Groonga::HTTP::Result->new(
+            command => $command,
+            data    => decode_json($body),
+        );
     }
     else {
         die $code;
