@@ -37,7 +37,6 @@ sub call {
     my ( undef, $code, undef, undef, $body ) = $self->{ua}->get($uri);
 
     if ( $code eq 200 ) {
-        print $body, "\n";
         return Groonga::HTTP::Result->new(
             command => $command,
             data    => decode_json($body),
